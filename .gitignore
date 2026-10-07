@@ -1,0 +1,41 @@
+# ---- secrets (never commit) ----
+.env
+.env.*
+!.env.example
+
+# ---- local-only data pack: database + product images (and derived image cache) ----
+data/
+*.db
+*.db-journal
+*.sqlite
+*.sqlite3
+products/
+products_cutout/
+*.jpg
+*.jpeg
+*.webp
+!frontend/public/*.svg
+
+# ---- Python ----
+.venv/
+venv/
+__pycache__/
+*.pyc
+
+# ---- Node / Vite ----
+node_modules/
+dist/
+.vite/
+*.local
+
+# ---- audit trail temp/backup files (the trail itself is committed) ----
+output/*.tmp
+output/audit_trail.corrupt-*.json
+
+# ---- OS / editor ----
+.DS_Store
+.idea/
+.vscode/
+
+# ---- local test artifacts ----
+output/app_check_results.json
