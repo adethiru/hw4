@@ -1,0 +1,58 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Campus Customs — App Check (Problem 11)</title>
+<style>
+ body{margin:0;background:#f6f1e7;color:#0f1b2d;font:16px/1.6 -apple-system,"Segoe UI",Roboto,Helvetica,Arial,sans-serif}
+ main{max-width:1100px;margin:0 auto;padding:2.5rem 1.5rem 4rem}
+ h1{font:600 2.2rem/1.15 Georgia,serif;margin:0 0 .4rem} h2{font:600 1.55rem/1.2 Georgia,serif;margin:0 0 .8rem;color:#00356b}
+ .meta{color:#6b6457;font-size:.9rem;margin:0 0 1.5rem}
+ nav{background:#fff;border:1px solid #ddd3c1;border-radius:10px;padding:.8rem 1.1rem;margin-bottom:2rem} nav a{color:#00356b;margin-right:1.2rem;font-weight:600}
+ section{background:#fff;border:1px solid #ddd3c1;border-radius:12px;padding:1.6rem;margin:0 0 2rem;box-shadow:0 2px 10px rgba(7,29,58,.06)}
+ .pass{display:inline-block;background:#e6f2ea;color:#2f6b4f;border:1px solid #b9d8c4;border-radius:999px;padding:.15rem .7rem;font-weight:700;font-size:.85rem;margin-left:.5rem;vertical-align:middle}
+ .proof{font-size:1.05rem;margin:.2rem 0 1rem}
+ figure{margin:0 0 1rem} figure img{width:100%;border:1px solid #ddd3c1;border-radius:8px;display:block}
+ figcaption{font-size:.88rem;color:#6b6457;margin-top:.35rem}
+ table{border-collapse:collapse;width:100%;font-size:.92rem;margin:.6rem 0 0} th,td{text-align:left;padding:.45rem .6rem;border-bottom:1px solid #eee5d6;vertical-align:top} th{background:#faf6ee;width:28%}
+ details{margin-top:.8rem} summary{cursor:pointer;color:#00356b;font-weight:600}
+ .grid2{display:grid;grid-template-columns:1fr 1fr;gap:1rem} @media(max-width:800px){.grid2{grid-template-columns:1fr}}
+ code{background:#f1ebdf;padding:.05rem .3rem;border-radius:4px}
+</style></head><body><main>
+<h1>Campus Customs — App Check</h1>
+<p class="meta">Problem 11 · Live site at <code>http://localhost:5173</code> (FastAPI backend <code>/api/health</code> = {&quot;status&quot;: &quot;ok&quot;, &quot;db&quot;: true}) · Run 2026-10-07T17:56:47 · Driven automatically by Playwright (headless Chromium) typing into the real chat widget, like a shopper. Screenshots are 1800×1125 and unedited.</p>
+<nav><a href="#check1">1. Inventory from chat</a><a href="#check2">2. Search-result cards</a><a href="#check3">3. Usability feature</a></nav>
+
+<section id="check1">
+<h2>1. Chat checks an item's inventory level (honest stock &amp; price from the DB) <span class="pass">PASS</span></h2>
+<figure><img src="app_check_images/inventory.png" alt="Concierge answering stock and price on the 2025 Yale vs Harvard T-Shirt page">
+<figcaption>Product page for the 2025 Yale vs. Harvard T-Shirt with the Concierge open; size L selected.</figcaption></figure>
+<p class="proof"><strong>What this proves:</strong> asked “How many of this do you have in size L, and what&#x27;s the price?”, the Concierge replied “The 2025 Yale Vs Harvard T Shirt is $32, and size L is in stock with only 2 left.” — exactly the database values (size L quantity = <strong>2</strong>, price = <strong>$32</strong>), matching the page's own “Availability by size” table.</p>
+<table><tr><th>Database (<code>/api/products/2025-yale-vs-harvard-t-shirt</code>)</th><td>2025 Yale Vs Harvard T Shirt · size L: quantity 2 · price $32.00</td></tr>
+<tr><th>Agent tool calls (audit trail)</th><td><code>check_stock(size="L")</code> → “Size L … is in stock, but only 2 left.” and <code>get_product_details</code> → $32.0</td></tr></table>
+<details><summary>Also checked: a sold-out size is reported clearly</summary>
+<figure style="margin-top:.8rem"><img src="app_check_images/inventory_out_of_stock.png" alt="Concierge saying size XS is out of stock">
+<figcaption>Baseball Left Chest Crewneck: “Do you have this in XS?” → “Sorry, size XS is out of stock in the Baseball Left Chest Crewneck. It’s currently available in S, M, L and XXL.”. Database: XS quantity = 0; in stock: S, M, L, XXL (the XS button is struck through on the page).</figcaption></figure></details>
+</section>
+
+<section id="check2">
+<h2>2. Dynamic search-result cards after a category question <span class="pass">PASS</span></h2>
+<figure><img src="app_check_images/search_cards.png" alt="Products page filled with hoodie cards after asking the chat">
+<figcaption>After asking “What hoodies do you have?” on the Home page, the site navigated to Products and rendered the agent's structured matches.</figcaption></figure>
+<p class="proof"><strong>What this proves:</strong> the agent searched the catalogue and returned structured product matches; the front end rendered <strong>25 hoodie cards</strong> (image, name, price, short description, sizes in stock) under the “Curated by your Concierge · Hoodies” banner, and the chat confirms “Showing 25 results on the Products page”.</p>
+<table><tr><th>First cards</th><td>Basic Hoodie Big Yale, Champion Reverse Weave Hoodie, Crew Left Chest Hoodie, District VIT Hoodie Vintage Bulldog</td></tr>
+<tr><th>Clicking a card</th><td>opened the single-item page <code>/products/basic-hoodie-big-yale</code> (Problem 3 behaviour still works — see below)</td></tr></table>
+<details><summary>Card click → product detail page</summary>
+<figure style="margin-top:.8rem"><img src="app_check_images/search_card_detail.png" alt="Product detail opened from a chat result card"><figcaption>Large image + full product information, with “Back to ‘Hoodies’ results”.</figcaption></figure></details>
+</section>
+
+<section id="check3">
+<h2>3. Usability feature (Problem 9): typo-tolerant search + quick-reply chips <span class="pass">PASS</span></h2>
+<figure><img src="app_check_images/usability_typo_chips.png" alt="Misspelled 'hoddies' still returns hoodies, with suggested follow-up chips">
+<figcaption>Shopper typed the misspelling “do you have any hoddies?”.</figcaption></figure>
+<p class="proof"><strong>What this proves:</strong> the misspelled “hoddies” was auto-corrected by the search tool, so the shopper still got <strong>25 hoodies</strong> on the page (“Yale hoodies”) instead of “we don't sell that”, and the reply ends with tappable follow-up chips: Which hoodie has a bulldog design? · Show me hoodies in size M · Which one is navy?.</p>
+<details open><summary>Tapping a chip sends it immediately</summary>
+<figure style="margin-top:.8rem"><img src="app_check_images/usability_chip_tapped.png" alt="Tapping the bulldog chip narrows the results to two bulldog hoodies">
+<figcaption>Tapped “Which hoodie has a bulldog design?” → the Concierge narrowed the page to the 2 bulldog hoodies with correct prices and in-stock sizes from the DB (District VIT Hoodie Vintage Bulldog: XS–XL; Sailor Bulldog: XS, S, M, XL, XXL; both $68), and offered new chips.</figcaption></figure></details>
+</section>
+
+<p class="meta">Raw evidence: the test script also writes <code>app_check_results.json</code> locally (not in the repo); each turn's tool calls, results and stop reasons are in <code>audit_trail.json</code> (all 5 test turns ended <code>stop_reason: "completed"</code>). Starter chips seen before the first question: What hoodies do you have? · Show me crewnecks under $60 · Anything with a bulldog?.</p>
+</main></body></html>
